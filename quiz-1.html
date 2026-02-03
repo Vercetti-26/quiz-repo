@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math for CS Practice Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        
+        .math-text {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+        }
+        
+        .option-card {
+            transition: all 0.2s ease;
+        }
+        
+        .option-card:hover:not(.disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col" style="min-height: 600px;">
+
+        <!-- Header -->
+        <header class="bg-indigo-600 text-white p-6 shadow-md z-10">
+            <div class="flex justify-between items-center">
+                <h1 class="text-xl font-bold tracking-tight">Math for CS Practice</h1>
+                <div id="score-display" class="hidden text-sm font-semibold bg-indigo-500 px-3 py-1 rounded-full">
+                    Score: <span id="current-score">0</span>
+                </div>
+            </div>
+            <!-- Progress Bar -->
+            <div id="progress-container" class="w-full bg-indigo-800 h-2 rounded-full mt-4 hidden">
+                <div id="progress-bar" class="bg-indigo-300 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="app" class="flex-grow p-6 flex flex-col relative overflow-y-auto">
+            <!-- Content injected by JS -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-50 p-4 border-t border-gray-100 text-center text-gray-400 text-xs">
+            Mathematics for Computer Science • Mock Exam Pattern
+        </footer>
+
+    </div>
+
+    <script>
+        // Quiz Data
+        const questions = [
+            // Section 1: Functions
+            {
+                q: "The domain of the function <span class='math-text'>f(x) = &radic;(9 - x<sup>2</sup>)</span> is:",
+                options: ["(-3, 3)", "[-3, 3]", "[0, 3]", "(-&infin;, &infin;)"],
+                correct: 1, // Index of correct answer (0-based)
+                explanation: "For the square root to be defined, 9 - x² ≥ 0, which means x² ≤ 9, so -3 ≤ x ≤ 3."
+            }, {
+                q: "Which of the following functions is <strong>even</strong>?",
+                options: ["f(x) = x<sup>3</sup> + x", "f(x) = sin x", "f(x) = x<sup>2</sup> + cos x", "f(x) = x<sup>2</sup> + x"],
+                correct: 2,
+                explanation: "An even function satisfies f(-x) = f(x). <br> (-x)² + cos(-x) = x² + cos(x)."
+            }, {
+                q: "The domain of the rational function <span class='math-text'>f(x) = (x+1)/(x-5)</span> is:",
+                options: ["All real numbers", "R - {5}", "R - {-1}", "(5, &infin;)"],
+                correct: 1,
+                explanation: "The denominator cannot be zero. x - 5 ≠ 0, so x ≠ 5."
+            }, {
+                q: "If <span class='math-text'>f(x) = x<sup>5</sup> - x</span>, then f(x) is:",
+                options: ["An even function", "An odd function", "Neither even nor odd", "Both even and odd"],
+                correct: 1,
+                explanation: "f(-x) = (-x)⁵ - (-x) = -x⁵ + x = -(x⁵ - x) = -f(x). This is the definition of an odd function."
+            }, {
+                q: "The domain of <span class='math-text'>f(x) = &radic;(x-2)</span> is:",
+                options: ["x ≥ 2", "x > 2", "x ≤ 2", "x < 2"],
+                correct: 0,
+                explanation: "For the root to be real, x - 2 ≥ 0, so x ≥ 2."
+            },
+
+            // Section 2: Limits
+            {
+                q: "<span class='math-text'>lim<sub>x&rarr;0</sub> (sin 5x)/x</span> equals:",
+                options: ["1", "5", "1/5", "0"],
+                correct: 1,
+                explanation: "Using the standard limit lim(sin(ax)/x) = a."
+            }, {
+                q: "<span class='math-text'>lim<sub>x&rarr;2</sub> (x<sup>2</sup> - 4)/(x - 2)</span> equals:",
+                options: ["0", "2", "4", "Does not exist"],
+                correct: 2,
+                explanation: "Factorize: (x-2)(x+2)/(x-2) = x+2. As x→2, this becomes 4."
+            }, {
+                q: "<span class='math-text'>lim<sub>x&rarr;&infin;</sub> (4x<sup>2</sup> + x - 1)/(2x<sup>2</sup> + 5)</span> equals:",
+                options: ["2", "4", "0", "&infin;"],
+                correct: 0,
+                explanation: "Divide by highest power x²: 4/2 = 2."
+            }, {
+                q: "<span class='math-text'>lim<sub>x&rarr;0</sub> (e<sup>x</sup> - 1)/x</span> is:",
+                options: ["0", "1", "e", "Does not exist"],
+                correct: 1,
+                explanation: "This is a standard limit definition."
+            }, {
+                q: "If <span class='math-text'>lim<sub>x&rarr;a</sub> f(x)</span> exists but is not equal to f(a), then f(x) is:",
+                options: ["Continuous at a", "Differentiable at a", "Discontinuous at a", "Constant"],
+                correct: 2,
+                explanation: "For continuity, the limit must equal the function value."
+            }, {
+                q: "<span class='math-text'>lim<sub>x&rarr;0</sub> (tan x)/x</span> equals:",
+                options: ["0", "1", "&pi;", "&infin;"],
+                correct: 1,
+                explanation: "Standard limit."
+            },
+
+            // Section 3: Continuity
+            {
+                q: "The function <span class='math-text'>f(x) = (x<sup>2</sup>-9)/(x-3)</span> for x&ne;3 and <span class='math-text'>k</span> for x=3 is continuous if k equals:",
+                options: ["3", "6", "9", "0"],
+                correct: 1,
+                explanation: "Limit as x→3 is (x+3) = 6. So k must be 6."
+            }, {
+                q: "A function f(x) is continuous at x=c if:",
+                options: ["Limit exists", "f(c) is defined", "Limit = f(c)", "f'(c) exists"],
+                correct: 2,
+                explanation: "This is the formal definition of continuity."
+            }, {
+                q: "The function <span class='math-text'>f(x) = 1/x</span> is discontinuous at:",
+                options: ["x = 1", "x = 0", "x = -1", "Everywhere"],
+                correct: 1,
+                explanation: "The function is undefined at x=0."
+            }, {
+                q: "For <span class='math-text'>f(x) = |x|</span>, which is true at x=0?",
+                options: ["Continuous but not differentiable", "Differentiable but not continuous", "Neither", "Both"],
+                correct: 0,
+                explanation: "|x| has a sharp corner at 0, so no derivative, but no break, so continuous."
+            },
+
+            // Section 4: Derivatives
+            {
+                q: "If <span class='math-text'>y = x<sup>7</sup></span>, then dy/dx at x=1 is:",
+                options: ["1", "6", "7", "49"],
+                correct: 2,
+                explanation: "dy/dx = 7x⁶. At x=1, value is 7(1) = 7."
+            }, {
+                q: "The derivative of <span class='math-text'>sin(3x)</span> with respect to x is:",
+                options: ["cos(3x)", "3cos(3x)", "-3cos(3x)", "3sin(3x)"],
+                correct: 1,
+                explanation: "Chain rule: derivative of outer (sin) is cos, times derivative of inner (3x) is 3."
+            }, {
+                q: "If <span class='math-text'>y = ln(x<sup>2</sup>)</span>, then dy/dx is:",
+                options: ["1/x<sup>2</sup>", "2/x", "1/x", "2x"],
+                correct: 1,
+                explanation: "y = 2ln(x), so dy/dx = 2/x."
+            }, {
+                q: "If <span class='math-text'>y = e<sup>2x</sup></span>, then d<sup>2</sup>y/dx<sup>2</sup> is:",
+                options: ["2e<sup>2x</sup>", "4e<sup>2x</sup>", "e<sup>2x</sup>", "8e<sup>2x</sup>"],
+                correct: 1,
+                explanation: "First derivative = 2e<sup>2x</sup>. Second derivative = 4e<sup>2x</sup>."
+            }, {
+                q: "If <span class='math-text'>f(x) = (2x+1)<sup>3</sup></span>, then f'(x) is:",
+                options: ["3(2x+1)<sup>2</sup>", "6(2x+1)<sup>2</sup>", "2(2x+1)<sup>2</sup>", "3(2x+1)"],
+                correct: 1,
+                explanation: "Chain rule: 3(2x+1)² * 2 = 6(2x+1)²."
+            }, {
+                q: "The derivative of a constant function is always:",
+                options: ["1", "The constant itself", "0", "Undefined"],
+                correct: 2,
+                explanation: "Rate of change of a constant is zero."
+            },
+
+            // Section 5: Partial Derivatives & Homogeneous
+            {
+                q: "If <span class='math-text'>z = x<sup>3</sup>y<sup>2</sup></span>, then &part;z/&part;x is:",
+                options: ["3x<sup>2</sup>y<sup>2</sup>", "2x<sup>3</sup>y", "6xy", "3x<sup>2</sup>"],
+                correct: 0,
+                explanation: "Treat y as constant. Derivative of x³ is 3x². Result: 3x²y²."
+            }, {
+                q: "If <span class='math-text'>u = x<sup>2</sup> + 2xy + y<sup>2</sup></span>, then &part;u/&part;y is:",
+                options: ["2x", "2x + 2y", "2y", "x + y"],
+                correct: 1,
+                explanation: "Treat x as constant. Deriv of 2xy is 2x. Deriv of y² is 2y."
+            }, {
+                q: "If f(x,y) is homogeneous of degree n, Euler's theorem states:",
+                options: ["x f<sub>x</sub> + y f<sub>y</sub> = f", "x f<sub>x</sub> + y f<sub>y</sub> = nf", "f<sub>x</sub> + f<sub>y</sub> = nz", "x f<sub>x</sub> - y f<sub>y</sub> = 0"],
+                correct: 1,
+                explanation: "This is the statement of Euler's theorem on homogeneous functions."
+            }, {
+                q: "The degree of <span class='math-text'>f(x,y) = (x<sup>3</sup> + y<sup>3</sup>)/(x + y)</span> is:",
+                options: ["1", "2", "3", "0"],
+                correct: 1,
+                explanation: "Numerator degree 3 - Denominator degree 1 = 2."
+            }, {
+                q: "If <span class='math-text'>z = sin(xy)</span>, then &part;z/&part;x is:",
+                options: ["cos(xy)", "y cos(xy)", "x cos(xy)", "-y sin(xy)"],
+                correct: 1,
+                explanation: "Chain rule: cos(xy) * derivative of inner (xy w.r.t x), which is y."
+            }, {
+                q: "For <span class='math-text'>u = x<sup>2</sup>y</span>, the value of &part;<sup>2</sup>u/&part;x&part;y is:",
+                options: ["2x", "2y", "x<sup>2</sup>", "0"],
+                correct: 0,
+                explanation: "First &part;u/&part;y = x². Then differentiate that w.r.t x -> 2x."
+            }, {
+                q: "If <span class='math-text'>u = x/y</span>, then x(&part;u/&part;x) + y(&part;u/&part;y) equals:",
+                options: ["u", "-u", "0", "2u"],
+                correct: 2,
+                explanation: "Degree is 1-1=0. By Euler's theorem, result is 0*u = 0."
+            }, {
+                q: "If <span class='math-text'>z = e<sup>x+y</sup></span>, then &part;z/&part;x - &part;z/&part;y equals:",
+                options: ["e<sup>x+y</sup>", "2e<sup>x+y</sup>", "0", "1"],
+                correct: 2,
+                explanation: "Both partial derivatives equal e<sup>x+y</sup>. Subtracting them gives 0."
+            }, {
+                q: "Which is <strong>NOT</strong> a homogeneous function?",
+                options: ["x<sup>2</sup> + y<sup>2</sup>", "x/y", "x<sup>2</sup> + y", "&radic;(x<sup>2</sup> + y<sup>2</sup>)"],
+                correct: 2,
+                explanation: "x² is degree 2, y is degree 1. Terms must have same degree."
+            }
+        ];
+
+        // State
+        let currentQIndex = 0;
+        let score = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let quizEnded = false;
+
+        // Elements
+        const app = document.getElementById('app');
+        const scoreDisplay = document.getElementById('score-display');
+        const currentScoreSpan = document.getElementById('current-score');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
+
+        // Initial Render
+        function init() {
+            renderStartScreen();
+        }
+
+        // 1. Start Screen
+        function renderStartScreen() {
+            app.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-center space-y-6 fade-in">
+                    <div class="bg-indigo-100 p-4 rounded-full">
+                        <svg class="w-16 h-16 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">Ready to Practice?</h2>
+                    <p class="text-gray-600 max-w-md">
+                        This practice quiz covers Functions, Limits, Continuity, and Derivatives. 
+                        There are <strong>${questions.length} questions</strong>.
+                    </p>
+                    <button onclick="startQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:scale-105">
+                        Start Quiz
+                    </button>
+                </div>
+            `;
+            scoreDisplay.classList.add('hidden');
+            progressContainer.classList.add('hidden');
+        }
+
+        // 2. Start Logic
+        function startQuiz() {
+            currentQIndex = 0;
+            score = 0;
+            quizEnded = false;
+            userAnswers.fill(null);
+            scoreDisplay.classList.remove('hidden');
+            progressContainer.classList.remove('hidden');
+            updateScore();
+            renderQuestion();
+        }
+
+        // 3. Render Question
+        function renderQuestion() {
+            const q = questions[currentQIndex];
+            const progress = ((currentQIndex) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            let optionsHtml = '';
+            q.options.forEach((opt, idx) => {
+                optionsHtml += `
+                    <button onclick="handleAnswer(${idx})" 
+                        class="option-card w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-400 hover:bg-indigo-50 bg-white text-gray-700 font-medium mb-3 flex items-center group">
+                        <span class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center mr-3 text-sm font-bold group-hover:bg-indigo-200 group-hover:text-indigo-700 transition">
+                            ${String.fromCharCode(65 + idx)}
+                        </span>
+                        <span class="flex-grow math-text not-italic font-sans">${opt}</span>
+                    </button>
+                `;
+            });
+
+            app.innerHTML = `
+                <div class="fade-in w-full max-w-xl mx-auto">
+                    <div class="mb-2 text-indigo-500 font-bold text-sm tracking-wide">QUESTION ${currentQIndex + 1} OF ${questions.length}</div>
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6 leading-relaxed">
+                        ${q.q}
+                    </h2>
+                    
+                    <div id="options-container">
+                        ${optionsHtml}
+                    </div>
+
+                    <div id="feedback-area" class="mt-4 hidden"></div>
+
+                    <div class="mt-8 flex justify-end">
+                        <button id="next-btn" onclick="nextQuestion()" disabled 
+                            class="bg-gray-300 text-gray-500 font-bold py-2 px-6 rounded-lg cursor-not-allowed transition">
+                            Next Question
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 4. Handle Answer Selection
+        function handleAnswer(selectedIndex) {
+            if (userAnswers[currentQIndex] !== null) return; // Prevent multiple clicks
+
+            const q = questions[currentQIndex];
+            userAnswers[currentQIndex] = selectedIndex;
+
+            const isCorrect = selectedIndex === q.correct;
+            if (isCorrect) score++;
+            updateScore();
+
+            // UI Feedback
+            const buttons = document.querySelectorAll('#options-container button');
+            const feedbackArea = document.getElementById('feedback-area');
+            const nextBtn = document.getElementById('next-btn');
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                btn.classList.add('disabled', 'cursor-default');
+                btn.classList.remove('hover:border-indigo-400', 'hover:bg-indigo-50', 'hover:scale-105');
+
+                if (idx === q.correct) {
+                    btn.classList.remove('border-gray-200', 'bg-white');
+                    btn.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                    btn.querySelector('span').classList.add('bg-green-200', 'text-green-800');
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.remove('border-gray-200', 'bg-white');
+                    btn.classList.add('bg-red-50', 'border-red-400', 'text-red-800');
+                    btn.querySelector('span').classList.add('bg-red-200', 'text-red-800');
+                } else {
+                    btn.classList.add('opacity-50');
+                }
+            });
+
+            // Show Explanation
+            feedbackArea.innerHTML = `
+                <div class="p-4 rounded-lg ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-blue-50 border border-blue-200'}">
+                    <p class="font-bold ${isCorrect ? 'text-green-700' : 'text-blue-700'} mb-1">
+                        ${isCorrect ? 'Correct!' : 'Solution:'}
+                    </p>
+                    <p class="text-gray-700 text-sm">${q.explanation}</p>
+                </div>
+            `;
+            feedbackArea.classList.remove('hidden');
+            feedbackArea.classList.add('fade-in');
+
+            // Enable Next Button
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            nextBtn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'shadow-lg');
+
+            if (currentQIndex === questions.length - 1) {
+                nextBtn.innerText = "See Results";
+            }
+        }
+
+        // 5. Next Question
+        function nextQuestion() {
+            if (currentQIndex < questions.length - 1) {
+                currentQIndex++;
+                renderQuestion();
+            } else {
+                renderEndScreen();
+            }
+        }
+
+        // 6. Update Score Display
+        function updateScore() {
+            currentScoreSpan.innerText = `${score} / ${questions.length}`;
+        }
+
+        // 7. End Screen
+        function renderEndScreen() {
+            quizEnded = true;
+            progressBar.style.width = '100%';
+
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = "";
+            let colorClass = "";
+
+            if (percentage >= 90) {
+                message = "Outstanding!";
+                colorClass = "text-green-600";
+            } else if (percentage >= 70) {
+                message = "Great Job!";
+                colorClass = "text-indigo-600";
+            } else if (percentage >= 50) {
+                message = "Good Effort!";
+                colorClass = "text-yellow-600";
+            } else {
+                message = "Keep Practicing!";
+                colorClass = "text-red-600";
+            }
+
+            app.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-center fade-in space-y-6">
+                    <div class="relative">
+                        <svg class="w-32 h-32 text-gray-100" viewBox="0 0 36 36">
+                            <path class="text-gray-200" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" />
+                            <path class="${percentage >= 70 ? 'text-green-500' : (percentage >= 40 ? 'text-yellow-500' : 'text-red-500')}" stroke-dasharray="${percentage}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" />
+                        </svg>
+                        <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center flex-col">
+                            <span class="text-3xl font-bold text-gray-800">${percentage}%</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 class="text-3xl font-bold ${colorClass} mb-2">${message}</h2>
+                        <p class="text-gray-500">You scored ${score} out of ${questions.length}</p>
+                    </div>
+
+                    <div class="flex space-x-4">
+                        <button onclick="startQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:scale-105">
+                            Retake Quiz
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+
+</html>
